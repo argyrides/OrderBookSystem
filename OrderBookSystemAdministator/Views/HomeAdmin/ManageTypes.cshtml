@@ -1,0 +1,356 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.BookType>
+
+<script>
+
+    function showEditModal() {
+        $('#editTypeModal').on('show.bs.modal', function (e) {
+
+            //get data from table row
+            var _button = $(e.relatedTarget);
+            var _row = _button.parents("tr");
+            var _typeid = _row.find(".edittypeid").text();
+            var _typename = _row.find(".edittypename").text();
+
+
+            //display data into modal
+            $(this).find(".edittypeid").val(_typeid);
+            $(this).find(".edittypename").val(_typename);
+
+        });
+    }
+
+    function ValidateTypeForm() {
+        let typename = document.forms["addTypeModalForm"]["addtypename"].value;
+       
+        if (typename = "") {
+            SetStyleForModalDiv();
+            $("#error_for_type").html("Type Is Required!");
+        }
+        else {
+            SaveChangesForAddType();
+        }
+    }
+
+
+    function ValidateEditTypeForm() {
+
+        let typeId = document.forms["editTypeModalForm"]["edittypeid"].value;
+        let typeName = document.forms["editTypeModalForm"]["edittypename"].value;
+
+
+        if (typeName == "") {
+            EditErrorStyle();
+            $("#error_for_edit_type").html("Type Is Required!");
+        }
+        else {
+            SaveChangesForEditType();
+        }
+    }
+
+    function SaveChangesForEditType() {
+        var data = {};
+        data.typeid = document.getElementById('edittypeid').value;
+        data.typename = document.getElementById('edittypename').value;
+
+        $.ajax({
+            url: '@Url.Action("EditTypes", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                '__RequestVerificationToken': $("#antiforgerytoken_manageTypes > input[name='__RequestVerificationToken']").val(),
+                EditTypeData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForEdit(result.Value);
+                 } else {
+                     if (result.Key == 'EX') {
+                         ErrorAlertForEdit(result.Value);
+                     } else {
+                         ErrorAlertForEdit(result.Value);
+                     }
+                 }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForEdit("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+    }
+
+     function SaveChangesForAddType() {
+        var data = {};
+
+        data.typename = document.getElementById('addtypename').value;
+
+        $.ajax({
+            url: '@Url.Action("AddTypes", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                '__RequestVerificationToken': $("#antiforgerytoken_manageTypes > input[name='__RequestVerificationToken']").val(),
+                AddTypeData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForAddType(result.Value);
+                 } else {
+                     if (result.Key == 'EX') {
+                         ErrorAlertForAddType(result.Value);
+                     } else {
+                         ErrorAlertForAddType(result.Value);
+                     }
+                 }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForAddType("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+     }
+
+    function SuccessAlertForAddType(result) {
+        document.getElementById("error_for_type").className = 'alert-success';
+        document.getElementById("error_for_type").style.color = 'green';
+        document.getElementById("error_for_type").style.marginBottom = '15px';
+        document.getElementById("error_for_type").style.padding = '15px';
+        document.getElementById("error_for_type").innerHTML = result;
+        setTimeout(function () {
+            $('#error_for_type').fadeOut('fast');
+        }, 1000);
+    }
+
+    function ErrorAlertForAddType(result) {
+        document.getElementById("error_for_type").style.backgroundColor = '#f44336';
+        document.getElementById("error_for_type").style.color = 'white';
+        document.getElementById("error_for_type").style.marginBottom = '15px';
+        document.getElementById("error_for_type").style.padding = '15px';
+        document.getElementById("error_for_type").innerHTML = result;
+
+        setTimeout(function () {
+            $('#error_for_type').fadeOut('fast');
+        }, 1000);
+    }
+
+
+    function SuccessAlertForEdit(result) {
+        document.getElementById("error_for_edit_type").className = 'alert-success';
+        document.getElementById("error_for_edit_type").style.color = 'green';
+        document.getElementById("error_for_edit_type").style.marginBottom = '15px';
+        document.getElementById("error_for_edit_type").style.padding = '15px';
+        document.getElementById("error_for_edit_type").innerHTML = result;
+        setTimeout(function () {
+            $('#error_for_edit_type').fadeOut('fast');
+        }, 1000);
+    }
+
+    function ErrorAlertForEdit(result) {
+        document.getElementById("error_for_edit_type").style.backgroundColor = '#f44336';
+        document.getElementById("error_for_edit_type").style.color = 'white';
+        document.getElementById("error_for_edit_type").style.marginBottom = '15px';
+        document.getElementById("error_for_edit_type").style.padding = '15px';
+        document.getElementById("error_for_edit_type").innerHTML = result;
+        setTimeout(function () {
+            $('#error_for_edit_type').fadeOut('fast');
+        }, 1000);
+    }
+
+    function EditErrorStyle() {
+        document.getElementById("error_for_edit_type").style.backgroundColor = '#f44336';
+        document.getElementById("error_for_edit_type").style.color = 'white';
+        document.getElementById("error_for_edit_type").style.marginBottom = '15px';
+        document.getElementById("error_for_edit_type").style.padding = '15px';
+        setTimeout(function () {
+            $('#error_for_edit_type').fadeOut('fast');
+        }, 1000);
+    }
+
+
+    function SuccessAlertForDelete(result) {
+        document.getElementById("headeralert").className = 'alert-success';
+        document.getElementById("headeralert").style.color = 'green';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+
+    function ErrorAlertForDelete(result) {
+        document.getElementById("headeralert").style.backgroundColor = '#f44336';
+        document.getElementById("headeralert").style.color = 'white';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+
+
+
+    function DeleteTypes(typeid) {
+        var data = {};
+
+        data.typeid = typeid;
+
+          $.ajax({
+            url: '@Url.Action("DeleteTypes", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                DeleteTypesData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForDelete(result.Value);
+                 } else {
+                     ErrorAlertForDelete(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForDelete("Oops, something went wrong, please try again!");
+                }
+          });
+    }
+
+</script>
+
+<div class="manageTypesPage">
+    <div id="antiforgerytoken_manageTypes" hidden>@Html.AntiForgeryToken()</div>
+
+    <div class="card" style="width: 100%;box-shadow: 4px 4px 4px 4px #888888;">
+        <div class="card-body">
+            <h5 class="card-title">Manage Types</h5>
+            <p id="headeralert" class="text-center"></p>
+
+            <button style="width: 70px; height: 40px; margin-right: 10px;" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTypeModal">ADD</button>
+
+            <table id="manageTypesTable" class="table table-striped table-bordered table-hover mt-2" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th class="th-sm">
+                            Id
+                        </th>
+                        <th class="th-sm">
+                            Type Name
+                        </th>
+                        <th class="th-sm" style="width:50px">
+                            Edit
+                        </th>
+                        <th class="th-sm" style="width:50px">
+                            Delete
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="edittypeid">@item.BookTypes_id</td>
+                            <td class="edittypename">@item.bookTypes_name</td>
+                            <td><button type="button" class=" btn btn-success" id="btnEdit" data-toggle="modal" data-target="#editTypeModal" onclick="showEditModal()">EDIT</button></td>
+                            <td><button type="button" class="btn btn-danger" onclick="DeleteTypes(@item.BookTypes_id)">DELETE</button></td>
+                        </tr>
+                    }
+            </table>
+        </div>
+
+        <!--AddType Modal-->
+        <div class="modal fade" id="addTypeModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Type</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="error_for_type">
+                        </p>
+                        <form name="addTypeModalForm">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="addtypeid">Id</label>
+                                        <input type="text" class="form-control" id="addtypeid" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label for="addtypename">Type Name</label>
+                                        <input name="addtypename" type="text" class="form-control addtypename" id="addtypename" placeholder="Enter Type Name" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="ValidateTypeForm()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end AddTypeModal-->
+        <!--EditType Modal-->
+        <div class="modal fade" id="editTypeModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Type</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="error_for_edit_type">
+                        </p>
+                        <form name="editTypeModalForm">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="edittypeid">Id</label>
+                                        <input type="text" class="form-control edittypeid" id="edittypeid" disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label for="edittypename">Type Name</label>
+                                        <input name="edittypename" type="text" class="form-control edittypename" id="edittypename" placeholder="Enter Type Name" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="ValidateEditTypeForm()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end EditTypeModal-->
+    </div>
+</div>

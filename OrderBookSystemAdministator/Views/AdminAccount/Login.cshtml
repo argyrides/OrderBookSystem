@@ -1,0 +1,93 @@
+﻿@model OrderBookSystemClient.Data.Entities.User
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "../Shared/_AdminAuthLayout.cshtml";
+}
+
+
+<script>
+
+    window.history.forward();
+</script>
+
+@{
+    int state = Convert.ToInt32(ViewData["message"]);
+
+    if (state == 1)
+    {
+        <div class="alert alert-success alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Succesfully Login!
+        </div>
+    }
+    if (state == 2)
+    {
+        <div class="alert alert-danger alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Wrong Username Or Password. Please try again.
+        </div>
+    }
+    if (state == 3)
+    {
+        <div class="alert alert-dark alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Sorry Your Account is Locked. Please contact us to unlocked it.
+        </div>
+    }
+    if (state == 4)
+    {
+        <div class="alert alert-warning alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Sorry Your Account is not Approved yet. Please try again later.
+        </div>
+    }
+    if (state == 5)
+    {
+        <div class="alert alert-danger alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Sorry you have no access to that pages.
+        </div>
+    }
+
+    if (state == 6)
+    {
+        <div class="alert alert-success alert-dismissible mt-4" role="alert">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Succesfully Register!
+        </div>
+    }
+
+}
+
+
+@using (Html.BeginForm("CheckUserCredentials", "AdminAccount", FormMethod.Post))
+{
+    <div class="col-md-10 offset-md-1 mt-4">
+        <section>
+            <div class="login-form-icon">
+                <i class="fas fa-user-circle fa-9x text-secondary" style="width:100%; text-align: center;margin-top: 1%;"></i>
+            </div>
+            <form id="login" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="username"></label>
+                    <input asp-for="username" class="form-control" />
+                    <span asp-validation-for="username" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="password"></label>
+                    <input asp-for="password" class="form-control" />
+                    <span asp-validation-for="password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <p>
+                        <a href="http://localhost:8002/">Login As Client</a>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">LOGIN</button>
+                </div>
+            </form>
+        </section>
+    </div>
+}

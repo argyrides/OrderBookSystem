@@ -1,0 +1,113 @@
+﻿@model List<OrderBookSystemAdministator.Models.StatisticsModel>
+
+<div class="statisticsPage">
+    <h2 class="text-center font-weight-bold" style="font-size: 22px;">Statistics</h2>
+
+    <div class="chartdiv">
+        <div class="card" style="width: 100%;  box-shadow: 4px 4px 4px 4px #888888;">
+            <div class="card-body">
+                <h5 class="card-title">Chart Of Purchased Books Per Type</h5>
+                <canvas class="mt-5" id="purchasedBooksPerTypeBarChart" style="width:100%;max-width:1300px;"></canvas>
+            </div>
+        </div>
+        <div class="card mt-5" style="width: 100%;  box-shadow: 4px 4px 4px 4px #888888;">
+            <div class="card-body">
+                <h5 class="card-title">Chart Of Purchases Per Book</h5>
+                <canvas class="mt-5" id="purchasedBooksPerBookNameBarChart" style="width:100%;max-width:1300px;"></canvas>
+            </div>
+        </div>
+            @*<canvas class="mt-5 ml-4" id="myChart" style="width:100%;max-width:700px"></canvas>*@
+
+    </div>
+</div>
+
+
+<script>
+
+    var xValues = [];
+    var yValues = [];
+
+    @foreach (var item in Model)
+    {
+        @:xValues.push("@item.statistics_type");
+        @:yValues.push("@item.statistics_value");
+    }
+
+
+    var barColors = ["gray", "red", "green", "blue", "orange", "brown", "purple", "green", "yellow", "navy", "olive", "maroon", "fuchsia", "teal", "antiquewhite", "blueviolet", "brown", "cadetblue","dodgerblue"];
+
+    new Chart("purchasedBooksPerTypeBarChart", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+            }]
+        },
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Purchased Books Per Type"
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+
+                    }
+                }]
+            }
+        }
+    });
+
+
+    var xVal = [];
+    var yVal = [];
+
+   @foreach (var item in ViewData["statisticsModelList2"] as List<OrderBookSystemAdministator.Models.StatisticsModel>)
+   {
+        @:xVal.push("@item.statistics_book_name");
+        @:yVal.push("@item.statistics_value");
+   }
+
+    new Chart("purchasedBooksPerBookNameBarChart", {
+        type: "line",
+        data: {
+            labels: xVal,
+            datasets: [{
+                data: yVal,
+                borderColor: "navy",
+                fill: false
+            }]
+        },
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Purchased Books Per Book"
+            },
+            scales: {
+                yAxes: [{ ticks: { min: 0} }],
+            }
+        }
+    });
+
+    //new Chart("purchasedBooksPerBookNameBarChart", {
+    //    type: "pie",
+    //    data: {
+    //        labels: xVal,
+    //        datasets: [{
+    //            backgroundColor: barColors,
+    //            data: yVal
+    //        }]
+    //    },
+    //    options: {
+    //        title: {
+    //            display: true,
+    //            text: "Purchased Books Per Book"
+    //        }
+    //    }
+    //});
+</script>

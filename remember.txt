@@ -1,0 +1,3 @@
+How-to prevent Visual Studio from opening a new browser window for ASP.NET MVC application: 
+
+Go to project properties --> Debug --> uncheck Launch Browser

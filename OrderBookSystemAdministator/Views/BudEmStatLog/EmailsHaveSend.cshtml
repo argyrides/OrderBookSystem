@@ -1,0 +1,59 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.EmailManagement> 
+
+<script>
+
+    $('document').ready(function () {
+
+        const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+        const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+            v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+        // do the work...
+        document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+            const table = th.closest('table');
+            const tbody = table.querySelector('tbody');
+            Array.from(tbody.querySelectorAll('tr'))
+                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                .forEach(tr => tbody.appendChild(tr))
+        })));
+    });
+
+</script>
+
+<div class="card" style="width: 100%; box-shadow: 4px 4px 4px 4px #888888;">
+    <div class="card-body">
+        <h5 class="card-title">Emails Have Send</h5>
+
+        <table id="emailsHaveSendTable" class="table table-striped table-bordered table-hover mt-4" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th class="th-sm">
+                        No.
+                    </th>
+                    <th class="th-sm">
+                        Email
+                    </th>
+                    <th class="th-sm">
+                        To Username
+                    </th>
+                    <th class="th-sm">
+                        To Email
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="emailmanagementid">@item.emailmanagement_id</td>
+                        <td class="emailcontent">@item.Z_email_id.email_content</td>
+                        <td class="username">@item.Z_user_id.username</td>
+                        <td class="useremail">@item.Z_user_id.email</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

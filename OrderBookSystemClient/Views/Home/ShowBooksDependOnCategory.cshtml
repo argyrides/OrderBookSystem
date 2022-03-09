@@ -1,0 +1,65 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.Book>
+@using Microsoft.AspNetCore.Http;
+
+<div class="row">
+
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+            <div class="card" style="box-shadow: 4px 4px 4px 4px #888888;">
+                <img class="card-img-top" src="/Images/download.jpg" height="200" alt="Card image">
+                <div class="card-header">
+                    <h5 class="text-center">@item.book_title</h5>
+                    <h5 class="text-center">@item.book_author</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-inline-flex" style="float:left;">
+                        @if (item.book_buy_availability == true)
+                        {
+                            <h5>Buy Price: @item.book_buy_price€</h5> <br />
+                        }
+                        else
+                        {
+                            <h5 style="color: red;">Unavailable for Buy</h5> <br />
+                        }
+                    </div>
+                    <div class="d-inline-flex" style="float:right;">
+                        @if (item.book_loan_availability == true)
+                        {
+                            <h5>Loan Price: @item.book_loan_price€</h5>
+                        }
+                        else
+                        {
+                            <h5 style="color: red;">Unavailable for Loan</h5>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    @if (item.book_buy_availability == true)
+                    {
+                        <button onclick="location.href= '@Url.Action("AddToCart","Home",new { book_id = item.book_id, for_loan = false, for_buy = true })'" style="width:80px;" class="btn btn-primary">Buy</button>
+                    }
+                    else
+                    {
+                        <button style="width:80px;" class="btn btn-dark" disabled>Buy</button>
+                    }
+                    @if (item.book_loan_availability == true)
+                    {
+                        <button onclick="location.href= '@Url.Action("AddToCart","Home",new { book_id = item.book_id, for_loan = true, for_buy = false })'" style="width:80px;" class="btn btn-primary">Loan</button>
+                    }
+                    else
+                    {
+                        <button style="width:80px;" class="btn btn-dark ml-2" disabled>Loan</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+
+    h5 {
+        font-size: 15px;
+    }
+</style>

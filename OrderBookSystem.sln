@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBookSystemClient", "OrderBookSystemClient\OrderBookSystemClient.csproj", "{9CCBC0F1-C780-4D65-B3D4-4DBF83D977E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBookSystemAdministator", "OrderBookSystemAdministator\OrderBookSystemAdministator.csproj", "{67C12A8C-031E-4886-9818-0BA5D869F057}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CCBC0F1-C780-4D65-B3D4-4DBF83D977E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CCBC0F1-C780-4D65-B3D4-4DBF83D977E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CCBC0F1-C780-4D65-B3D4-4DBF83D977E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CCBC0F1-C780-4D65-B3D4-4DBF83D977E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67C12A8C-031E-4886-9818-0BA5D869F057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67C12A8C-031E-4886-9818-0BA5D869F057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67C12A8C-031E-4886-9818-0BA5D869F057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67C12A8C-031E-4886-9818-0BA5D869F057}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37667C0F-E40B-48AB-B972-D7461EDE1B1D}
+	EndGlobalSection
+EndGlobal

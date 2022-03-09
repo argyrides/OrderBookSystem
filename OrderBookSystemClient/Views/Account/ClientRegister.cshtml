@@ -1,0 +1,143 @@
+﻿@model OrderBookSystemClient.Data.Entities.User
+
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "../Shared/_AuthLayout.cshtml";
+}
+
+
+<script>
+    function ErrorAlert(message) {
+        document.getElementById("errorMsg").style.display = "block";
+        document.getElementById("errorMsg").innerHTML = message;
+        setTimeout(function () {
+            $('#errorMsg').fadeOut('fast');
+        }, 2500);
+    }
+
+
+    function SuccessAlert(message) {
+        document.getElementById("successMsg").style.display = "block";
+        document.getElementById("successMsg").innerHTML = message;
+        setTimeout(function () {
+            $('#successMsg').fadeOut('fast');
+        }, 2500);
+    }
+
+    function RequiredFields() {
+        var firstname = document.getElementById("firstname").value;
+        var lastname = document.getElementById("lastname").value;
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var email = document.getElementById("email").value;
+
+        if (firstname == "") {
+            ErrorAlert("First name is required!");
+        }
+        else if (lastname == "") {
+            ErrorAlert("Last name is required!");
+        }
+        else if (username == "") {
+            ErrorAlert("User name is required!");
+        }
+        else if (password == "") {
+            ErrorAlert("Password is required!");
+        }
+        else if (email == "") {
+            ErrorAlert("Email is required!");
+        }
+        else {
+            checkCredentials();
+        }
+    }
+
+    function checkCredentials() {
+        var firstname = document.getElementById("firstname").value;
+        var lastname = document.getElementById("lastname").value;
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var email = document.getElementById("email").value;
+
+        var data = {}
+        data.firstname = firstname;
+        data.lastname = lastname;
+        data.username = username;
+        data.password = password;
+        data.email = email;
+
+        $.ajax({
+             url: '@Url.Action("CheckRegisterCredentials", "Account")',
+             type: 'POST',
+             async: false,
+             dataType: 'json',
+             data: {
+                 RegisterData: JSON.stringify(data)
+             },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlert("Register Completed Successfully!");
+                 }
+                 else{
+                     ErrorAlert(result.Value);
+                 }
+                 // return true;
+             },
+             error: function () {
+                 ErrorAlert("Oops, something went wrong, please try again!");
+             }
+        });
+    }
+
+
+</script>
+
+
+<h4 class="mt-4" style="font-size: 15px;">Create a new account.</h4>
+<hr />
+
+<div class="alert alert-danger" id="errorMsg" role="alert" style="display:none;">
+</div>
+<div class="alert alert-success" id="successMsg" role="alert" style="display:none;">
+</div>
+
+<form id="register" method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="firstname">Firstname</label>
+                <input type="text" id="firstname" class="form-control" required />
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="lastname">Lastname</label>
+                <input type="text" id="lastname" class="form-control" required />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" class="form-control" required />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" required />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" required />
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="button" onclick="RequiredFields()" class="btn btn-primary btn-block">REGISTER</button>
+    </div>
+</form>

@@ -1,0 +1,416 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.Email> 
+
+<script>
+
+    $('document').ready(function () {
+
+        const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+        const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+            v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+        // do the work...
+        document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+            const table = th.closest('table');
+            const tbody = table.querySelector('tbody');
+            Array.from(tbody.querySelectorAll('tr'))
+                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                .forEach(tr => tbody.appendChild(tr))
+        })));
+    });
+
+
+    function ValidateForm() {
+        let email_content = document.forms["addEmailModalForm"]["addemailtextarea"].value;
+        let email_type = document.forms["addEmailModalForm"]["addemailtype"].value;
+
+        if (email_content == "") {
+            SetStyleForAddModalDiv();
+            $("#error").html("Email Content Is Required!");
+        }
+        else if (email_type == "Nothing Selected") {
+            SetStyleForAddModalDiv();
+            $("#error").html("Select Email Type!");
+        }
+        else {
+            SaveChangesForEmail(true);
+        }
+    }
+
+    function ValidateEditForm() {
+        let email_content = document.forms["EditEmailModalForm"]["emailcontent"].value;
+        let email_type = document.forms["EditEmailModalForm"]["emailtype"].value;
+
+        console.log(email_content);
+        if (email_content == "") {
+            SetStyleForEditModalDiv();
+            $("#editerror").html("Email Content Is Required!");
+        }
+        else if (email_type == "Nothing Selected") {
+            SetStyleForEditModalDiv();
+            $("#editerror").html("Select Email Type!");
+        }
+        else {
+            SaveChangesForEmail(false);
+        }
+    }
+
+    function showEditEmailModal() {
+        $('#editemailModal').on('show.bs.modal', function (e) {
+
+            //get data from table row
+            var _button = $(e.relatedTarget);
+            var _row = _button.parents("tr");
+            var _emailid = _row.find(".emailid").text();
+            var _emailcontent = _row.find(".emailcontent").text();
+            var _emailtype = _row.find(".emailtype").text();
+
+            //display data into modal
+            $(this).find(".emailid").val(_emailid);
+            $(this).find(".emailcontent").val(_emailcontent);
+            $(this).find(".emailtype").val(_emailtype);
+
+        });
+    }
+
+    function SetStyleForEditModalDiv() {
+        document.getElementById("editerror").style.backgroundColor = '#f44336';
+        document.getElementById("editerror").style.color = 'white';
+        document.getElementById("editerror").style.marginBottom = '15px';
+        document.getElementById("editerror").style.padding = '15px';
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000)
+    }
+
+    function SetStyleForAddModalDiv() {
+        document.getElementById("error").style.backgroundColor = '#f44336';
+        document.getElementById("error").style.color = 'white';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000)
+    }
+
+    function SuccessAlertForAddEmail(result) {
+        document.getElementById("error").className = 'alert-success';
+        document.getElementById("error").style.color = 'green';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        document.getElementById("error").innerHTML = result;
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000)
+    }
+
+    function SuccessAlertForEditEmail(result) {
+        document.getElementById("editerror").className = 'alert-success';
+        document.getElementById("editerror").style.color = 'green';
+        document.getElementById("editerror").style.marginBottom = '15px';
+        document.getElementById("editerror").style.padding = '15px';
+        document.getElementById("editerror").innerHTML = result;
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000)
+    }
+
+    function ErrorAlertForAddEmail(result) {
+        document.getElementById("error").style.backgroundColor = '#f44336';
+        document.getElementById("error").style.color = 'white';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        document.getElementById("error").innerHTML = result;
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000)
+    }
+
+    function ErrorAlertForDelete(result) {
+        document.getElementById("headeralert").style.backgroundColor = '#f44336';
+        document.getElementById("headeralert").style.color = 'white';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SuccessAlertForDelete(result) {
+        document.getElementById("headeralert").className = 'alert-success';
+        document.getElementById("headeralert").style.color = 'green';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SaveChangesForEmail(isforadd) {
+        var data = {};
+
+        if (isforadd == true) {
+            data.emailcontent = document.getElementById('addemailtextarea').value;
+            data.emailtype = document.getElementById('addemailtype').value;
+            data.isforaddbool = isforadd;
+        }
+        else {
+            data.emailcontent = document.getElementById('emailcontent').value;
+            data.emailtype = document.getElementById('emailtype').value;
+            data.isforaddbool = isforadd;
+            data.emailid = document.getElementById('emailid').value;
+        }
+
+        $.ajax({
+            url: '@Url.Action("AddEmails", "BudEmStatLog")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                '__RequestVerificationToken': $("#antiforgerytoken_addEmails > input[name='__RequestVerificationToken']").val(),
+                AddEmailData: JSON.stringify(data)
+            },
+            success: function (result) {
+                if (isforadd == true) {
+                    if (result.Key == 'S') {
+                        SuccessAlertForAddEmail(result.Value);
+                    } else {
+                        if (result.Key == 'EX') {
+                            ErrorAlertForAddEmail(result.Value);
+                        } else {
+                            ErrorAlertForAddEmail(result.Value);
+                        }
+                    }
+                }
+                else {
+                    if (result.Key == 'S') {
+                        SuccessAlertForEditEmail(result.Value);
+                    } else {
+                        if (result.Key == 'EX') {
+                            SuccessAlertForEditEmail(result.Value);
+                        } else {
+                            SuccessAlertForEditEmail(result.Value);
+                        }
+                    }
+                }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForAddEmail("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+    }
+
+    
+
+    function DeleteEmails(email_id) {
+        var data = {};
+
+        data.emailid = email_id;
+
+          $.ajax({
+            url: '@Url.Action("DeleteEmails", "BudEmStatLog")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                DeleteEmailsData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForDelete(result.Value);
+                 } else {
+                     ErrorAlertForDelete(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForDelete("Oops, something went wrong, please try again!");
+                }
+          });
+    }
+
+
+
+</script>
+
+
+
+<div class="emailManagementPage">
+    <div id="antiforgerytoken_addEmails" hidden>@Html.AntiForgeryToken()</div>
+    <p id="headeralert" class="text-center"></p>
+
+    <div class="card" style="width: 100%;box-shadow: 4px 4px 4px 4px #888888;">
+        <div class="card-body">
+            <h5 class="card-title">Manage Emails</h5>
+            <button style="width: 100px; height: 40px; margin-right: 10px;" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addemailModal">ADD</button>
+
+            <!--Add email modal-->
+
+            <div class="modal fade" id="addemailModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header ">
+                            <h5 class="modal-title">Add Email</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="error">
+                            </p>
+                            <form name="addEmailModalForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="addemailid">Id</label>
+                                            <input type="text" class="form-control" id="addemailid" disabled />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="addemailtype">Email Type</label>
+                                            @{
+                                                OrderBookSystemClient.Data.DBContext db = new OrderBookSystemClient.Data.DBContext();
+                                                var getEmailTypes = db.EmailTypes.Where(a => a.type_id >= 0).Select(a => a.type_title).ToList();
+                                            }
+                                        <select class="form-control addemailtype" id="addemailtype">
+                                            <option selected>Nothing Selected</option>
+                                            @foreach (var item in getEmailTypes)
+                                            {
+                                                <option>@item</option>
+                                            }
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="addemailtextarea">Content</label>
+                                            <textarea class="form-control" id="addemailtextarea" rows="4" required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="ValidateForm()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--end add email modal-->
+
+            <table id="emailsTable" class="table table-striped table-bordered table-hover mt-4" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th class="th-sm">
+                            No.
+                            <img id="sort-image0" src="~/icons/sort.svg" width="15" height="15" style="margin-left: 5px;" />
+                        </th>
+                        <th class="th-sm">
+                            Email
+                            <img id="sort-image1" src="~/icons/sort.svg" width="15" height="15" style="margin-left: 5px;" />
+                        </th>
+                        <th class="th-sm">
+                            Type
+                        </th>
+                        <th class="th-sm">
+                            Edit
+                        </th>
+                        <th class="th-sm">
+                            Delete
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="emailid">@item.email_id</td>
+                            <td class="emailcontent">@item.email_content</td>
+                            <td class="emailtype">@item.Z_email_id.type_title</td>
+                            <td class="text-center"><button type="button" class=" btn btn-success" id="btnEdit" data-toggle="modal" data-target="#editemailModal" onclick="showEditEmailModal()">EDIT</button></td>
+                            <td class="text-center"><button type="button" class="btn btn-danger" onclick="DeleteEmails(@item.email_id)">DELETE</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!--edit email modal-->
+
+            <div class="modal fade" id="editemailModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header ">
+                            <h5 class="modal-title">Edit Email</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="editerror"></p>
+                            <form id="EditEmailModalForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="emailid">Id</label>
+                                            <input id="emailid" type="text" class="form-control emailid" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="emailtype">Email Type</label>
+                                            @{ 
+                                                OrderBookSystemClient.Data.DBContext db2 = new OrderBookSystemClient.Data.DBContext();
+                                                var getEmailTypes2 = db2.EmailTypes.Where(a => a.type_id >= 0).Select(a=>a.type_title).ToList();
+                                            }
+                                            <select class="form-control emailtype" id="emailtype">
+                                                <option selected>Nothing Selected</option>
+                                                @foreach (var item in getEmailTypes2)
+                                                {
+                                                    <option>@item</option>
+                                                }
+                                                
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="emailcontent">Content</label>
+                                            <textarea class="form-control emailcontent" id="emailcontent" rows="4" required></textarea>
+                                            @*<input type="text" class="form-control emailcontent" id="emailcontent" placeholder="Enter Email Content" required>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="ValidateEditForm()">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--end edit email modal-->
+        </div>
+    </div> <!--end of send emails card-->
+
+ 
+</div>

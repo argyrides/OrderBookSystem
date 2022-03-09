@@ -1,0 +1,125 @@
+﻿@model OrderBookSystemClient.Data.Entities.User 
+
+<script>
+
+    function ErrorAlertForSaveChanges(result) {
+        document.getElementById("message_header").style.backgroundColor = '#f44336';
+        document.getElementById("message_header").style.color = 'white';
+        document.getElementById("message_header").style.marginBottom = '15px';
+        document.getElementById("message_header").style.padding = '15px';
+        document.getElementById("message_header").innerHTML = result;
+        setTimeout(function () {
+            $('#message_header').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SuccessAlertForSaveChanges(result) {
+        document.getElementById("message_header").className = 'alert-success';
+        document.getElementById("message_header").style.color = 'green';
+        document.getElementById("message_header").style.marginBottom = '15px';
+        document.getElementById("message_header").style.padding = '15px';
+        document.getElementById("message_header").innerHTML = result;
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SaveChanges() {
+
+        var firstName = document.getElementById("firstname").value;
+        var lastName = document.getElementById("lastname").value;
+        var oldPass = document.getElementById("oldpassword").value;
+        var newPass = document.getElementById("newpassword").value;
+        var email = document.getElementById("email").value;
+
+        var data = {};
+
+        data.firstName = firstName;
+        data.lastName = lastName;
+        data.oldPass = oldPass;
+        data.newPass = newPass;
+        data.email = email;
+
+         $.ajax({
+            url: '@Url.Action("SaveChangesForSettings", "Settings")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                SettingsData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForSaveChanges(result.Value);
+                 } else {
+                     if (result.Key == 'EX') {
+                         ErrorAlertForSaveChanges(result.Value);
+                     } else {
+                         ErrorAlertForSaveChanges(result.Value);
+                     }
+                 }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForEdit("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+
+    }
+
+</script>
+
+
+<div class="card" style="width: 50%; margin-left: 25%; box-shadow: 4px 4px 4px 4px #888888;">
+    <div class="card-header">
+        <div id="message_header">
+            <h5 class="card-title">Settings</h5>
+        </div>
+    </div>
+    <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="firstname">Firstname</label>
+                        <input value="@Model.firstname" id="firstname" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="lastname">Lastname</label>
+                        <input value="@Model.lastname" id="lastname" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="oldpassword">Old Password</label>
+                        <input type="password" id="oldpassword" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="newpassword">New Password</label>
+                        <input type="password" id="newpassword" class="form-control" required />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="email">Email</label>
+                    <input value="@Model.email" id="email" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <button class="btn btn-primary btn-block" onclick="SaveChanges()">Save Changes</button>
+            </div>
+        </div>
+</div>

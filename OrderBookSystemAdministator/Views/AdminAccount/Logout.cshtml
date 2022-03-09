@@ -1,0 +1,18 @@
+﻿@*@{
+
+        Layout = "../Shared/_LogoutLayout.cshtml";
+    }*@
+
+<script language="javascript" type="text/javascript">
+
+    $('document').ready(function () { window.history.forward(); }
+</script>
+
+
+<div class="logoutpage text-center" style="margin-top: 20%;">
+    <h4 class="text-center mt-5 font-weight-bold">Successfully Logged out! Have a nice day.</h4>
+    <div class="d-inline-flex">
+        <h4>Are you already miss us?</h4>
+        <button onclick="location.href= '@Url.Action("Login","AdminAccount")'" class="btn-primary border-0 ml-3" style="width:100px; height: 40px;">Login</button>
+    </div>
+</div>

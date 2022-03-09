@@ -1,0 +1,749 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.Book>
+
+<script>
+
+    $('document').ready(function () {
+
+        const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+        const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+            v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+        // do the work...
+        document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+            const table = th.closest('table');
+            const tbody = table.querySelector('tbody');
+            Array.from(tbody.querySelectorAll('tr'))
+                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                .forEach(tr => tbody.appendChild(tr))
+        })));
+    });
+
+
+    function showEditModal() {
+        $('#EditModal').on('show.bs.modal', function (e) {
+
+            //get data from table row
+            var _button = $(e.relatedTarget);
+            var _row = _button.parents("tr");
+            var _bookid = _row.find(".bookid").text();
+            var _bookname = _row.find(".bookname").text();
+            var _bookauthor = _row.find(".bookauthor").text();
+            var _booktype = _row.find(".booktype").text();
+            var _bookbuyprice = _row.find(".bookbuyprice").text();
+            var _bookloanprice = _row.find(".bookloanprice").text();
+            var _bookquantity = _row.find(".bookquantity").text();
+            var _isavailableforbuy = _row.find(".isavailableforbuy").text();
+            var _isavailableforloan = _row.find(".isavailableforloan").text();
+
+            //display data into modal
+            $(this).find(".bookid").val(_bookid);
+            $(this).find(".bookname").val(_bookname);
+            $(this).find(".bookauthor").val(_bookauthor);
+            $(this).find(".booktype").val(_booktype);
+            $(this).find(".bookbuyprice").val(_bookbuyprice);
+            $(this).find(".bookloanprice").val(_bookloanprice);
+            $(this).find(".bookquantity").val(_bookquantity);
+
+
+            if (_isavailableforbuy == "True") {
+                document.getElementById("availableforbuycheck").checked = true;
+            }
+            else {
+                document.getElementById("availableforbuycheck").checked = false;
+            }
+            if (_isavailableforloan == "True") {
+                document.getElementById("availableforloancheck").checked = true;
+            }
+            else {
+                document.getElementById("availableforloancheck").checked = false;
+            }
+
+        });
+    }
+
+    function OnKeyUp() {
+        var input = document.getElementById("searchInput");
+        input.addEventListener("keyup", function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                document.getElementById("searchbtn").click();
+            }
+        });
+    }
+
+    //searching in books table
+    function SearchFunction() {
+        var input, filter, bookid, title, author, tr, i, txtValue, txtValue1, txtValue2, txtValue3;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        booksTable = document.getElementById("booksTable");
+        tr = booksTable.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            bookid = tr[i].getElementsByTagName("td")[0];
+            title = tr[i].getElementsByTagName("td")[1];
+            author = tr[i].getElementsByTagName("td")[2];
+            type = tr[i].getElementsByTagName("td")[3];
+            if (title || author) {
+                txtValue = title.textContent || title.innerText;
+                txtValue1 = bookid.textContent || bookid.innerText;
+                txtValue2 = author.textContent || author.innerText;
+                txtValue3 = type.textContent || type.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue1.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                }
+                else {
+                    tr[i].style.display = "none";
+
+                }
+            }
+        }
+    }
+
+
+    function ValidateForm() {
+        let bookname = document.forms["addModalForm"]["addbookname"].value;
+        let bookauthor = document.forms["addModalForm"]["addbookauthor"].value;
+        let bookbuyprice = document.forms["addModalForm"]["addbuyprice"].value;
+        let bookloanprice = document.forms["addModalForm"]["addloanprice"].value;
+        let bookquantity = document.forms["addModalForm"]["addbookquantity"].value;
+        let booktype = document.getElementById("addbooktype").value;
+
+        if (bookname == "") {
+            SetStyleForModalDiv();
+            $("#error").html("Book Name Is Required!");
+        }
+        else if (bookauthor == "") {
+            SetStyleForModalDiv();
+            $("#error").html("Book Author Is Required!");
+        }
+        else if (bookbuyprice == "") {
+            SetStyleForModalDiv();
+            $("#error").html("Book Buy Price Is Required!");
+        }
+        else if (bookloanprice == "") {
+            SetStyleForModalDiv();
+            $("#error").html("Book Loan Price Is Required!");
+        }
+        else if (bookquantity == "") {
+            SetStyleForModalDiv();
+            $("#error").html("Book Quantity Is Required!");
+        }
+        else if (booktype == "Nothing Selected") {
+            SetStyleForModalDiv();
+            $("#error").html("Select Type Is Required!");
+        }
+        else {
+            SaveChangesForAdd();
+        }
+    }
+
+    function ValidateEditForm() {
+        let bookname = document.forms["EditModalForm"]["bookname"].value;
+        let bookauthor = document.forms["EditModalForm"]["bookauthor"].value;
+        let bookbuyprice = document.forms["EditModalForm"]["buyprice"].value;
+        let bookloanprice = document.forms["EditModalForm"]["loanprice"].value;
+        let bookquantity = document.forms["EditModalForm"]["bookquantity"].value;
+        let booktype = document.getElementById("booktype").value;
+        let buyckeckbox = document.querySelector('#availableforbuycheck').checked;
+        let loancheck = document.querySelector('#availableforloancheck').checked;
+
+        if (bookname == "") {
+            EditErrorStyle();
+            $("#editerror").html("Book Name Is Required!");
+        }
+        else if (bookauthor == "") {
+            EditErrorStyle();
+            $("#editerror").html("Book Author Is Required!");
+        }
+        else if (bookbuyprice == "") {
+            EditErrorStyle();
+            $("#editerror").html("Book Buy Price Is Required!");
+        }
+        else if (bookbuyprice == 0 && buyckeckbox == true) {
+            EditErrorStyle();
+            $("#editerror").html("Book Buy Price must not be 0 if the book is available for buy!")
+        }
+        else if (bookloanprice == "") {
+            EditErrorStyle();
+            $("#editerror").html("Book Loan Price Is Required!");
+        }
+        else if (bookloanprice == 0 && loancheck == true) {
+            EditErrorStyle();
+            $("#editerror").html("Book Loan Price must not be 0 if the book is available for loan!")
+        }
+        else if (bookquantity == "") {
+            EditErrorStyle();
+            $("#editerror").html("Book Quantity Is Required!");
+        }
+        else if (booktype == "Nothing Selected") {
+            EditErrorStyle();
+            $("#editerror").html("Select Type Is Required!");
+        }
+        else {
+            SaveChangesForEdit();
+        }
+    }
+
+    function SetStyleForModalDiv() {
+        document.getElementById("error").style.backgroundColor = '#f44336';
+        document.getElementById("error").style.color = 'white';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000);
+    }
+
+    function EditErrorStyle() {
+        document.getElementById("editerror").style.backgroundColor = '#f44336';
+        document.getElementById("editerror").style.color = 'white';
+        document.getElementById("editerror").style.marginBottom = '15px';
+        document.getElementById("editerror").style.padding = '15px';
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SaveChangesForAdd() {
+
+
+        var data = {};
+
+        data.bookname = document.getElementById('addbookname').value;
+        data.bookauthor = document.getElementById('addbookauthor').value;
+        data.buyprice = document.getElementById('addbuyprice').value;
+        data.loanprice = document.getElementById('addloanprice').value;
+        data.bookquantity = document.getElementById('addbookquantity').value;
+        data.booktype = document.getElementById('addbooktype').value
+
+        if (document.getElementById('addavailableforbuycheck').checked) {
+            data.availableforbuycheck = true;
+        }
+        else {
+            data.availableforbuycheck = false;
+        }
+
+        if (document.getElementById('addavailableforloancheck').checked) {
+            data.availableforloancheck = true;
+        }
+        else {
+            data.availableforloancheck = false;
+        }
+
+
+        $.ajax({
+            url: '@Url.Action("AddBooks", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                '__RequestVerificationToken': $("#antiforgerytoken_manageBooks > input[name='__RequestVerificationToken']").val(),
+                AddBookData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForAdd(result.Value);
+                 } else {
+                     if (result.Key == 'EX') {
+                         ErrorAlertForAdd(result.Value);
+                     } else {
+                         ErrorAlertForAdd(result.Value);
+                     }
+                 }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForAdd("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+    }
+
+
+
+   
+
+
+    function ErrorAlertForAdd(result) {
+        document.getElementById("error").style.backgroundColor = '#f44336';
+        document.getElementById("error").style.color = 'white';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        document.getElementById("error").innerHTML = result;
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000);
+
+    }
+
+    function ErrorAlertForEdit(result) {
+        document.getElementById("editerror").style.backgroundColor = '#f44336';
+        document.getElementById("editerror").style.color = 'white';
+        document.getElementById("editerror").style.marginBottom = '15px';
+        document.getElementById("editerror").style.padding = '15px';
+        document.getElementById("editerror").innerHTML = result;
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000);
+    }
+
+    function ErrorAlertForDelete(result) {
+        document.getElementById("headeralert").style.backgroundColor = '#f44336';
+        document.getElementById("headeralert").style.color = 'white';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+
+    function SuccessAlertForAdd(result) {
+        document.getElementById("error").className = 'alert-success';
+        document.getElementById("error").style.color = 'green';
+        document.getElementById("error").style.marginBottom = '15px';
+        document.getElementById("error").style.padding = '15px';
+        document.getElementById("error").innerHTML = result;
+        setTimeout(function () {
+            $('#error').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SuccessAlertForEdit(result) {
+        document.getElementById("editerror").className = 'alert-success';
+        document.getElementById("editerror").style.color = 'green';
+        document.getElementById("editerror").style.marginBottom = '15px';
+        document.getElementById("editerror").style.padding = '15px';
+        document.getElementById("editerror").innerHTML = result;
+        setTimeout(function () {
+            $('#editerror').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SuccessAlertForDelete(result) {
+        document.getElementById("headeralert").className = 'alert-success';
+        document.getElementById("headeralert").style.color = 'green';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+           setTimeout(function () {
+               $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+    function SaveChangesForEdit() {
+        var data = {};
+        data.bookid = document.getElementById('bookid').value;
+        data.bookname = document.getElementById('bookname').value;
+        data.bookauthor = document.getElementById('bookauthor').value;
+        data.buyprice = document.getElementById('buyprice').value;
+        data.loanprice = document.getElementById('loanprice').value;
+        data.bookquantity = document.getElementById('bookquantity').value;
+        data.booktype = document.getElementById('booktype').value
+
+
+        if (document.getElementById('availableforbuycheck').checked) {
+            data.availableforbuycheck = true;
+        }
+        else {
+            data.availableforbuycheck = false;
+        }
+
+        if (document.getElementById('availableforloancheck').checked) {
+            data.availableforloancheck = true;
+        }
+        else {
+            data.availableforloancheck = false;
+        }
+
+
+        $.ajax({
+            url: '@Url.Action("EditBooks", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                '__RequestVerificationToken': $("#antiforgerytoken_manageBooks > input[name='__RequestVerificationToken']").val(),
+                EditBookData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForEdit(result.Value);
+                 } else {
+                     if (result.Key == 'EX') {
+                         ErrorAlertForEdit(result.Value);
+                     } else {
+                         ErrorAlertForEdit(result.Value);
+                     }
+                 }
+                    setTimeout(function () { location.reload(true); }, 1500);
+                    return true;
+             },
+                error: function () {
+                    ErrorAlertForEdit("Oops, something went wrong, please try again!");
+                    setTimeout(function () { location.reload(true); }, 1500);
+                }
+        });
+    }
+
+    function DeleteBooks(bookid) {
+        var data = {};
+
+        data.bookid = bookid;
+
+          $.ajax({
+            url: '@Url.Action("DeleteBooks", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                DeleteBooksData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForDelete(result.Value);
+                 } else if (result.Key = 'F')
+                 {
+                     ErrorAlertForDelete(result.Value);
+                 }
+                 else {
+                     ErrorAlertForDelete(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForDelete("Oops, something went wrong, please try again!");
+                }
+          });
+    }
+
+
+</script>
+
+<div class="card" style="width: 100%;box-shadow: 4px 4px 4px 4px #888888;">
+    <div id="antiforgerytoken_manageBooks" hidden>@Html.AntiForgeryToken()</div>
+    <div class="card-body">
+        <h5 class="card-title">Manage Books</h5>
+        <p id="headeralert" class="text-center"></p>
+
+        <div class="pageHeader">
+            <button style="width: 80px; height: 50px; margin-right: 10px;" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">ADD</button>
+
+            <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+                <!--Add Modal -->
+                <div class="modal-dialog" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header ">
+                            <h5 class="modal-title">Add Book</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="error">
+                            </p>
+                            <form name="addModalForm">
+                                
+                                <div class="row mt-3">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="addbookid">Id</label>
+                                            <input type="text" class="form-control" id="addbookid" disabled />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label for="addbookname">Name</label>
+                                            <input name="addbookname" type="text" class="form-control" id="addbookname" placeholder="Enter Book Name" required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="addbookauthor">Author</label>
+                                    <input name="addbookauthor" type="text" class="form-control" id="addbookauthor" placeholder="Enter Author" required />
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="addbuyprice">Buy Price</label>
+                                            <input name="addbuyprice" type="number" class="form-control" id="addbuyprice" placeholder="Buy Price" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="addloanprice">Loan Price</label>
+                                            <input name="addloanprice" type="number" class="form-control" id="addloanprice" placeholder="Loan Price" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="addbookquantity">Quantity</label>
+                                            <input name="addbookquantity" type="number" class="form-control" id="addbookquantity" placeholder="Quantity" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="addbooktype">Type</label>
+                                            <select class="form-control" id="addbooktype">
+                                                <option selected>Nothing Selected</option>
+                                                @{
+                                                    OrderBookSystemClient.Data.DBContext db = new OrderBookSystemClient.Data.DBContext();
+                                                    var selectTypes = db.BookTypes.Where(a => a.BookTypes_id >= 0).Select(a => a.bookTypes_name).ToList();
+                                                }
+                                                @foreach (var item in selectTypes)
+                                                {
+                                                    <option>@item</option>
+                                                }
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="addavailableforbuycheck" />
+                                            <label class="form-check-label" for="addavailableforbuycheck">
+                                                Available for Buy
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="addavailableforloancheck" />
+                                            <label class="form-check-label" for="addaddavailableforloancheck">
+                                                Available for Loan
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="ValidateForm()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--END Add Modal -->
+          
+
+
+            <div class="input-group" style="margin-left: 150px;">
+                <div class="form-outline">
+                    <input style="height: 50px; width: 400px;" type="search" id="searchInput" class="form-control" placeholder="Search" onkeyup="OnKeyUp()" />
+                </div>
+                <button id="searchbtn" style="width: 50px;" type="button" class="btn btn-primary" onclick="SearchFunction()">
+                    <img src="~/icons/search.svg" width="25" height="30" />
+                </button>
+            </div>
+        </div>
+            <table id="booksTable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th class="th-sm">
+                            Id
+                        </th>
+                        <th class="th-sm">
+                            Title
+                        </th>
+                        <th class="th-sm">
+                            Author
+                        </th>
+                        <th class="th-sm">
+                            Type
+                        </th>
+                        <th class="th-sm">
+                            Buy Price
+                        </th>
+                        <th class="th-sm">
+                            Loan Price
+                        </th>
+                        <th class="th-sm">
+                            Quantity
+                        </th>
+                        <th class="th-sm" style="width:50px">
+                            Edit
+                        </th>
+                        <th class="th-sm" style="width:50px">
+                            Delete
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="bookid">@item.book_id</td>
+                            <td class="bookname">@item.book_title</td>
+                            <td class="bookauthor">@item.book_author</td>
+                            <td class="booktype">@item.Z_BookType.bookTypes_name</td>
+                            <td class="isavailableforbuy" hidden>@item.book_buy_availability</td>
+                            <td class="isavailableforloan" hidden>@item.book_loan_availability</td>
+
+                            @if (item.book_buy_availability == false)
+                            {
+                                <td class="bookbuyprice" style="background-color: gray;" data-toggle="tooltip" data-placement="top" title="No Available for Buy">@item.book_buy_price</td>
+                            }
+                            else
+                            {
+                                <td class="bookbuyprice">@item.book_buy_price</td>
+                            }
+                            @if (item.book_loan_availability == false)
+                            {
+                                <td class="bookloanprice" style="background-color: gray;" data-toggle="tooltip" data-placement="top" title="No Available for Loan">@item.book_loan_price</td>
+                            }
+                            else
+                            {
+                                <td class="bookloanprice">@item.book_loan_price</td>
+                            }
+                            @if (item.book_quantity == 0)
+                            {
+                                <td class="bookquantity" style="background-color: lightgray;" data-toggle="tooltip" data-placement="top" title="No Stock">@item.book_quantity</td>
+                            }
+                            else
+                            {
+                                <td class="bookquantity">@item.book_quantity</td>
+                            }
+                            <td><button type="button" class=" btn btn-success" id="btnEdit" data-toggle="modal" data-target="#EditModal" onclick="showEditModal()">EDIT</button></td>
+                            <td><button type="button" class="btn btn-danger" onclick="DeleteBooks(@item.book_id)">DELETE</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!--Edit Modal -->
+            <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header ">
+                            <h5 class="modal-title">Edit Book</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="editerror"></p>
+                            <form id="EditModalForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="bookid">Id</label>
+                                            <input id="bookid" type="text" class="form-control bookid" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label for="bookname">Name</label>
+                                            <input type="text" class="form-control bookname" id="bookname" placeholder="Enter Book Name" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="bookauthor">Author</label>
+                                    <input type="text" class="form-control bookauthor" id="bookauthor" placeholder="Enter Author" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="buyprice">Buy Price</label>
+                                            <input type="number" class="form-control bookbuyprice" id="buyprice" placeholder="Buy Price" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="loanprice">Loan Price</label>
+                                            <input type="number" class="form-control bookloanprice" id="loanprice" placeholder="Loan Price" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="bookquantity">Quantity</label>
+                                            <input type="number" class="form-control bookquantity" id="bookquantity" placeholder="Quantity" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="booktype">Type</label>
+                                            <select class="form-control booktype" id="booktype">
+                                                <option selected>Nothing Selected</option>
+                                                @{
+                                                    OrderBookSystemClient.Data.DBContext db2 = new OrderBookSystemClient.Data.DBContext();
+                                                    var selectTypes2 = db2.BookTypes.Where(a => a.BookTypes_id >= 0).Select(a => a.bookTypes_name).ToList();
+                                                }
+                                                @foreach (var item in selectTypes2)
+                                                {
+                                                    <option>@item</option>
+                                                }
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input buycheck" type="checkbox" value="" id="availableforbuycheck" />
+                                            <label class="form-check-label" for="availableforbuycheck">
+                                                Available for Buy
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input loancheck" type="checkbox" value="" id="availableforloancheck">
+                                            <label class="form-check-label" for="availableforloancheck">
+                                                Available for Loan
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="ValidateEditForm()">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</div>
+
+
+<style>
+
+    .pageHeader{
+        width: 100%;
+        display: inline-flex;
+        margin: 20px 20px 20px 0px;
+        
+    }
+
+
+</style>

@@ -1,0 +1,309 @@
+﻿@model List<OrderBookSystemClient.Data.Entities.User>
+
+<script>
+    function SearchFunction() {
+        var input, filter, tr, i, txtValue, txtValue1, txtValue2, txtValue3, txtValue4;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        logsTable = document.getElementById("usersTable");
+        tr = logsTable.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            firstName = tr[i].getElementsByTagName("td")[0];
+            lastName = tr[i].getElementsByTagName("td")[1];
+            username = tr[i].getElementsByTagName("td")[2];
+            last_login = tr[i].getElementsByTagName("td")[4];
+            role = tr[i].getElementsByTagName("td")[5];
+            if (firstName || lastName) {
+                txtValue = firstName.textContent || firstName.innerText;
+                txtValue1 = lastName.textContent || lastName.innerText;
+                txtValue2 = username.textContent || username.innerText;
+                txtValue3 = last_login.textContent || last_login.innerText;
+                txtValue4 = role.textContent || role.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue1.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                }
+                else {
+                    tr[i].style.display = "none";
+
+                }
+            }
+        }
+    }
+
+    function OnKeyUp() {
+        var input = document.getElementById("searchInput");
+        input.addEventListener("keyup", function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                document.getElementById("searchbtn").click();
+            }
+        });
+    }
+
+    function ErrorAlertForUserDeleteOrBlock(result) {
+        document.getElementById("headeralert").className = 'alert-danger';
+        document.getElementById("headeralert").style.color = 'black';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 3000);
+    }
+
+    function SuccessAlertForUserDeleteOrBlock(result) {
+        document.getElementById("headeralert").className = 'alert-success';
+        document.getElementById("headeralert").style.color = 'black';
+        document.getElementById("headeralert").style.marginBottom = '15px';
+        document.getElementById("headeralert").style.padding = '15px';
+        document.getElementById("headeralert").innerHTML = result;
+
+        setTimeout(function () {
+            $('#headeralert').fadeOut('fast');
+        }, 1000);
+    }
+
+    function DeleteUsers(userid) {
+        var data = {};
+
+        data.userid = userid;
+
+          $.ajax({
+            url: '@Url.Action("DeleteUsers", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                DeleteUsersData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForUserDeleteOrBlock(result.Value);
+                 } else {
+                     ErrorAlertForUserDeleteOrBlock(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForUserDeleteOrBlock("Oops, something went wrong, please try again!");
+                }
+        });
+    }
+
+    function BlockUsers(userid) {
+        var data = {};
+
+        data.userid = userid;
+
+          $.ajax({
+            url: '@Url.Action("BlockUsers", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                BlockUsersData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForUserDeleteOrBlock(result.Value);
+                 } else {
+                     ErrorAlertForUserDeleteOrBlock(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForUserDeleteOrBlock("Oops, something went wrong, please try again!");
+                }
+        });
+    }
+
+    function UnblockUsers(userid) {
+        var data = {};
+
+        data.userid = userid;
+
+          $.ajax({
+            url: '@Url.Action("UnBlockUsers", "HomeAdmin")',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            data: {
+                UnBlockUsersData: JSON.stringify(data)
+            },
+             success: function (result) {
+                 if (result.Key == 'S') {
+                     SuccessAlertForUserDeleteOrBlock(result.Value);
+                 } else {
+                     ErrorAlertForUserDeleteOrBlock(result.Value);
+                 }
+                 setTimeout(function () { location.reload(true); }, 1500);
+
+                 return true;
+             },
+                error: function () {
+                    ErrorAlertForUserDeleteOrBlock("Oops, something went wrong, please try again!");
+                }
+        });
+    }
+
+    $('document').ready(function () {
+
+        const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+        const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+            v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+        // do the work...
+        document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+            const table = th.closest('table');
+            const tbody = table.querySelector('tbody');
+            Array.from(tbody.querySelectorAll('tr'))
+                .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+                .forEach(tr => tbody.appendChild(tr))
+        })));
+    });
+
+
+
+    window.history.forward();
+
+</script>
+
+
+<div class="indexpage">
+    <p id="headeralert"></p>
+    <h2 class="text-center font-weight-bold" style="font-size: 22px;">Welcome To Book System Administration</h2>
+    <div class="card" style="width: 100%; font-size: 14px;box-shadow: 4px 4px 4px 4px #888888;">
+        <div class="card-body">
+            <h5 class="card-title">Active Users</h5>
+
+            <div class="pageHeader">
+                <div class="input-group mt-2 mb-2">
+                    <div class="form-outline">
+                        <input style="height: 40px; width:100%; max-width: 500px;" type="search" id="searchInput" class="form-control" placeholder="Search" onkeyup="OnKeyUp()" />
+                    </div>
+                    <button id="searchbtn" style="width: 50px;" type="button" class="btn btn-primary" onclick="SearchFunction()">
+                        <img src="~/icons/search.svg" width="25" height="20" />
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive-sm">
+                <table id="usersTable" class="table table-striped table-bordered table-hover mt-2" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="th-sm">
+                                First Name
+                            </th>
+                            <th class="th-sm">
+                                Last Name
+                            </th>
+                            <th class="th-sm">
+                                Username
+                            </th>
+                            @*<th class="th-sm">
+                                Email
+                            </th>*@
+                            <th class="th-sm">
+                                Is Locked
+                            </th>
+                            <th class="th-sm">
+                                Last Login
+                            </th>
+                            <th class="th-sm">
+                                Role
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            if (item.is_locked == true)
+                            {
+                                <tr style="background-color: darkgray">
+                                    <td class="firstname">@item.firstname</td>
+                                    <td class="lastname">@item.lastname</td>
+                                    <td class="username">@item.username</td>
+                                    @*<td class="email">@item.email</td>*@
+                                    @if (item.is_locked == true)
+                                    {
+                                        <td class="is_locked">✓</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="is_locked">X</td>
+                                    }
+                                    <td class="last_login">@item.last_login</td>
+                                    <td class="role">@item.role</td>
+                                    @if (item.role == "ADMIN")
+                                    {
+                                        <td><button type="button" class="btn btn-danger" onclick="DeleteUsers(@item.user_id)" disabled>DELETE</button></td>
+                                        <td><button type="button" class="btn btn-dark" onclick="BlockUsers(@item.user_id)" disabled>BLOCK</button></td>
+
+                                    }
+                                    else
+                                    {
+                                        <td><button type="button" class="btn btn-danger" onclick="DeleteUsers(@item.user_id)">DELETE</button></td>
+                                        @if (item.is_locked == false)
+                                        {
+                                            <td><button type="button" class="btn btn-dark" onclick="BlockUsers(@item.user_id)">BLOCK</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td><button type="button" class="btn btn-primary" onclick="UnblockUsers(@item.user_id)">UNBLOCK</button></td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="firstname">@item.firstname</td>
+                                    <td class="lastname">@item.lastname</td>
+                                    <td class="username">@item.username</td>
+                                    @*<td class="email">@item.email</td>*@
+                                    @if (item.is_locked == true)
+                                    {
+                                        <td class="is_locked">✓</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="is_locked">X</td>
+                                    }
+                                    <td class="last_login">@item.last_login</td>
+                                    <td class="role">@item.role</td>
+                                    @if (item.role == "ADMIN")
+                                    {
+                                        <td><button type="button" class="btn btn-danger" onclick="DeleteUsers(@item.user_id)" disabled>DELETE</button></td>
+                                        <td><button type="button" class="btn btn-dark" onclick="BlockUsers(@item.user_id)" disabled>BLOCK</button></td>
+
+                                    }
+                                    else
+                                    {
+                                        <td><button type="button" class="btn btn-danger" onclick="DeleteUsers(@item.user_id)">DELETE</button></td>
+                                        @if (item.is_locked == false)
+                                        {
+                                            <td><button type="button" class="btn btn-dark" onclick="BlockUsers(@item.user_id)">BLOCK</button></td>
+                                        }
+                                        else
+                                        {
+                                            <td><button type="button" class="btn btn-primary" onclick="UnblockUsers(@item.user_id)">UNBLOCK</button></td>
+                                        }
+                                    }
+                                </tr>
+                            }
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrderBookSystem</title>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+</head>
+<body style="font-family: Verdana;">
+    <header>
+        @if(Context.Session.GetString("username") != null)
+        {
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="HomeAdmin" asp-action="Index">OrderBookSystem</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <div class="dropdown show">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown">
+                                    Manage
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item" asp-controller="HomeAdmin" asp-action="ManageOrders">Manage Orders</a>
+                                    <a class="dropdown-item" asp-controller="HomeAdmin" asp-action="ManageUsers">Manage Users</a>
+                                    <a class="dropdown-item" asp-controller="HomeAdmin" asp-action="ManageBooks">Manage Books</a>
+                                    <a class="dropdown-item" asp-controller="HomeAdmin" asp-action="ManageTypes">Manage Types</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="BudEmStatLog" asp-action="Budget">Budget</a>
+                        </li>
+                        <li class="nav-item">
+                            <div class="dropdown show">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" role="button" id="dropdownforEmailManagement" data-toggle="dropdown">
+                                    Email Management
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownforEmailManagement">
+                                    <a class="dropdown-item" asp-controller="BudEmStatLog" asp-action="ManageEmails">Manage Emails</a>
+                                    <a class="dropdown-item" asp-controller="BudEmStatLog" asp-action="EmailsHaveSend">Emails Have Send</a>
+                                </div>
+                            </div>
+                            @*<a class="nav-link text-dark" asp-area="" asp-controller="BudEmStatLog" asp-action="EmailManagement">Email Management</a>*@
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="BudEmStatLog" asp-action="Statistics">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="BudEmStatLog" asp-action="Log">Log</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminAccount" asp-action="Logout">Logout</a>
+                        </li>
+                    </ul>
+                    Welcome<a class="nav-link text-primary" asp-controller="HomeAdmin" asp-action="Index">@Context.Session.GetString("username")</a>
+                </div>
+            </div>
+        
+            @*<button type="button" class="text-right btn btn-dark btn-sm" onclick="location.href='@Url.Action("Logout", "AdminAccount")'" >Logout</button>*@
+        </nav>
+        }
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2021 - OrderBookSystem
+        </div>
+    </footer>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

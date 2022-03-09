@@ -1,0 +1,57 @@
+﻿<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrderBookSystemClient</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body style="width: 99%; font-family: Verdana;">
+    <div class="header">
+        <h1 style="width: 100%; text-align: center; font-family: Verdana; font-size: 25px; color: #231F20; margin-top: 5%;">Order Book System Client</h1>
+    </div>
+    <div class="row" style="margin-top: 5%;">
+        <div class="col-md-6 offset-md-3">
+            <div class="card-header" style="box-shadow: 4px 4px 4px 4px #888888;">
+                <div class="card-content" style="font-size: 22px;">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a style="color: black; " class="nav-link" asp-controller="Account" asp-action="ClientLogin">LOGIN</a>
+                        </li>
+                        <li class="nav-item">
+                            <a style="color:black;" class="nav-link" asp-controller="Account" asp-action="ClientRegister">REGISTER</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-content" style="text-transform: capitalize;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @RenderBody()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2021 - OrderBookSystem
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        $(function () {
+            var current = location.pathname;
+            $('.nav-tabs li a').each(function () {
+                var $this = $(this);
+                if (current.indexOf($this.attr('href')) !== -1) {
+                    $this.addClass('active');
+                }
+            });
+        });
+
+    </script>
+</body>
